@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- 마이 페이지 타이틀 -->
+    <string name="my_page_title">프로필</string>
+    <string name="review_title">평가하기</string>
+    <string name="review_message_title">어땠나요?</string>
+    <string name="test_username">Banana</string>
+    <string name="user_grade_title">내 점수</string>
+    <string name="user_mate_title">내 메이트들</string>
+    <string name="test_mate1_username">Apple</string>
+    <string name="test_mate2_username">Grape</string>
+    <string name="test_mate3_username">Tomato</string>
+</resources>
