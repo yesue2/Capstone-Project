@@ -98,10 +98,7 @@ class MainPage : AppCompatActivity() {
 
         databaseReference.addValueEventListener(postListener)
         //색상 추가
-        adapter.colorList.add(R.color.ca585d4)
         adapter.colorList.add(R.color.e0d0f0)
-        adapter.colorList.add(R.color.ce4ddf2)
-        adapter.colorList.add(R.color.cfaf3fb)
 //        <color name="c63359a">#63359a</color>
 //        <color name="c743cb3">#743cb3</color>
 //        <color name="ca585d4">#a585d4</color>
