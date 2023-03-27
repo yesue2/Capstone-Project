@@ -76,7 +76,7 @@ class ChatActivity : AppCompatActivity() {
             chat_inputBox.setText("")
         }
 
-        //나가기 버터느
+        //나가기 버튼
         chat_quit_button.setOnClickListener {
             database.getReference("message").child(chatNum).removeValue()
             val intent = Intent(this, FinishActivity::class.java)

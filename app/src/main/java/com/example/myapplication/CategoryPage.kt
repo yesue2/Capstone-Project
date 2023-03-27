@@ -109,6 +109,7 @@ class CategoryPage : AppCompatActivity() {
                     .child("waitUserNum")
                     .value.toString().toInt()
 
+                //에러 보고용 로그
                 Log.e("qwer",waitUserNum.toString())
             }
 
@@ -149,6 +150,7 @@ class CategoryPage : AppCompatActivity() {
 
             }
 
+            //읽어오기에 실패했을 때
             override fun onCancelled(error: DatabaseError) {
                 TODO("Not yet implemented")
             }

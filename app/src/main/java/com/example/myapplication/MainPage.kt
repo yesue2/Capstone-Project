@@ -27,6 +27,7 @@ class MainPage : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_page)
 
+        //마이페이지 클릭이벤트 구현
         var auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid.toString()
         
@@ -38,6 +39,7 @@ class MainPage : AppCompatActivity() {
         }
 
 
+        //카테고리 구현
         var database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference()
         //databaseReference.child("categories").removeValue()
@@ -56,7 +58,7 @@ class MainPage : AppCompatActivity() {
         addCategory("12", "icon_buger","패스트푸드")
         addCategory("13", "icon_lunch","도시락")
 
-        //레이아웃의 방향을 관리하는
+        //레이아웃의 스크롤 방향을 관리하는
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
 
@@ -96,8 +98,6 @@ class MainPage : AppCompatActivity() {
 
         databaseReference.addValueEventListener(postListener)
         //색상 추가
-        adapter.colorList.add(R.color.c63359a)
-        adapter.colorList.add(R.color.c743cb3)
         adapter.colorList.add(R.color.ca585d4)
         adapter.colorList.add(R.color.e0d0f0)
         adapter.colorList.add(R.color.ce4ddf2)
