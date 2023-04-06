@@ -67,7 +67,7 @@ class CategoryPage : AppCompatActivity() {
         var sendCate="임시"
 
         var value=intent.getStringExtra("key1") //
-        Log.e("snap",value.toString())
+        Log.e("noSnap",value.toString())
         when (value){
             "고기/구이"->{resCate= "0"; sendCate="meat"}
             "도시락"->{resCate= "1";sendCate= "rice"}
@@ -90,7 +90,7 @@ class CategoryPage : AppCompatActivity() {
         val rescateName=value.toString()
 
 
-        //####
+        //####recycleView 설정#####
 
         adapter = BrandAdapter(this)
 

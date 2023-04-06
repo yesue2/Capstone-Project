@@ -31,7 +31,8 @@ class MainPage : AppCompatActivity() {
         var auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid.toString()
         
-        Glide.with(this).load("https://firebasestorage.googleapis.com/v0/b/matching-72523.appspot.com/o/Image%2F${uid}?alt=media&token=30debee5-947f-4918-ba9c-3ee40e82f6e0").circleCrop().into(icon_mypage);
+        Glide.with(this).load("https://firebasestorage.googleapis.com/v0/b/matching-72523.appspot.com/o/Image%2F${uid}?alt=media&token=30debee5-947f-4918-ba9c-3ee40e82f6e0")
+            .circleCrop().into(icon_mypage);
 
         icon_mypage.setOnClickListener {
             val intent = Intent(this, MyPage::class.java)
