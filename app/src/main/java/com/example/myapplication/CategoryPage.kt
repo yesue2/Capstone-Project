@@ -39,7 +39,7 @@ class CategoryPage : AppCompatActivity() {
     lateinit var userReference: DatabaseReference
 
 
-   // private lateinit var firestore: FirebaseFirestore
+    // private lateinit var firestore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,16 +56,16 @@ class CategoryPage : AppCompatActivity() {
         userid= FirebaseAuth.getInstance().currentUser?.uid.toString()
         databaseReference.child("Users").child(userid).child("userGrade")
             .get().addOnSuccessListener{
-            grade= it.value.toString()
-        }
-//        //######################
-
+                grade= it.value.toString()
+            }
+//        //#########resData 노드 참조#############
         userReference=database.getReference("resData")
 
         var i=0
         var resCate="13"  //임시
         var sendCate="임시"
 
+        //이전 액티비티에서 전달받은 key1 데이터 가져옴
         var value=intent.getStringExtra("key1") //
         Log.e("noSnap",value.toString())
         when (value){
@@ -91,7 +91,6 @@ class CategoryPage : AppCompatActivity() {
 
 
         //####recycleView 설정#####
-
         adapter = BrandAdapter(this)
 
         val layoutManager=LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
@@ -177,7 +176,7 @@ class CategoryPage : AppCompatActivity() {
 
 
             Log.e("nowBrandList", arr.toString())
-          //  Log.e("nowBrandList", arr[0].toString())
+            //  Log.e("nowBrandList", arr[0].toString())
 
 
             val intent = Intent(this, MatchLoading::class.java)

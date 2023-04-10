@@ -111,29 +111,40 @@ class MainPage : AppCompatActivity() {
 
         //카테고리정보저장
         var cate="string"
+
         val intent = Intent(this, CategoryPage::class.java)
 
 
 
         //각 버튼들이 클릭했을 때
         adapter.listener = object : OnButtonItemClickListener{
-            override fun onItemClick(holder: ButtonAdapter.ViewHolder?, view: View, position: Int, index:Int) {
+            override fun onItemClick(holder: ButtonAdapter.ViewHolder?, view: View, position: Int, index: Int) {
                 var name:String?
                 if(index == 0) {
                     name = adapter.itemList[position].name1
+                    Log.d("MainActivity", "name: $name")
                     //showToast("아이템 클릭됨 : ${adapter.itemList[position].name1}")
                     cate=adapter.itemList[position].name1.toString()
                     intent.putExtra("key1", cate.toString())
+                    //key1에 할당된 값 확인
+                    Log.d("MainActivity", "key1 value: ${intent.getStringExtra("key1")}")
+
                     startActivity(intent)
 
                 }else{
-                    name = adapter.itemList[position].name1
-                   // showToast("아이템 클릭됨 : ${adapter.itemList[position].name2}")
+                    name = adapter.itemList[position].name2
+                    Log.d("MainActivity", "name: $name")
+                    //showToast("아이템 클릭됨 : ${adapter.itemList[position].name2}")
                     cate=adapter.itemList[position].name2.toString()
                     intent.putExtra("key1", cate.toString())
+                    //key1에 할당된 값 확인
+                    Log.d("MainActivity", "key1 value: ${intent.getStringExtra("key1")}")
+
                     startActivity(intent)
 
                 }
+
+
 
 //                when(name){
 //                    "Pizza" -> {

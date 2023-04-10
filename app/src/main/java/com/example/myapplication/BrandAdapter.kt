@@ -37,7 +37,7 @@ class BrandAdapter(private val context: CategoryPage) : RecyclerView.Adapter<Bra
         holder.cate.text=item.cate
         holder.num.text= item.num
         holder.cate_num.text= item.cate_num
-       // holder.userid.text=item.userid
+        // holder.userid.text=item.userid
         //holder.grade.text= item.grade
     }
 
@@ -74,10 +74,3 @@ class BrandAdapter(private val context: CategoryPage) : RecyclerView.Adapter<Bra
 
 
 }
-
-
-
-
-
-
-
