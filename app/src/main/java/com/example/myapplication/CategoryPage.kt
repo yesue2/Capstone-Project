@@ -1,110 +1,85 @@
 package com.example.myapplication
 
-import android.content.Intent
-import android.graphics.Color
+//import com.google.firebase.firestore.FirebaseFirestore
+
 import android.os.Bundle
 import android.util.Log
-import android.util.SparseBooleanArray
-import android.view.View
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.startActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.matching.MatchLoading
-import com.example.myapplication.matching.Matching
+import com.example.myapplication.databinding.ActivityCategoryBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
-//import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.activity_category.*
-import kotlinx.android.synthetic.main.activity_category.view.*
-import kotlinx.android.synthetic.main.activity_main_page.*
-import kotlinx.android.synthetic.main.activity_register.*
 import kotlinx.android.synthetic.main.brand_name.*
 
 
-
 class CategoryPage : AppCompatActivity() {
-    private lateinit var adapter: BrandAdapter
+    lateinit var brandAdapter: BrandAdapter
+    lateinit var binding: ActivityCategoryBinding
     lateinit var databaseReference: DatabaseReference
     lateinit var userReference: DatabaseReference
 
+    //받아온 데이터 넣을 리스트
+    private val brandList = mutableListOf<BrandModel>()
 
-    // private lateinit var firestore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_category)
 
+        //binding 변수 초기화
+        binding = ActivityCategoryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
 
         var database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference()
 
-        var userid="id" //유저아이디, 별점은 선택시 전송하는걸로
-        var grade="3.5"
+        //####유저 데이터 받아오기 시작####
 
-        //##유저아이디###########
-        userid= FirebaseAuth.getInstance().currentUser?.uid.toString()
+        var userid = "id" //유저아이디, 별점은 선택시 전송하는걸로
+        var grade = "2.5"
+
+        //userId 값 가져와서 userid 변수에 할당
+        userid = FirebaseAuth.getInstance().currentUser?.uid.toString()
+
+        //userGrade 값 가져와서 grade 변수에 할당
+        /*get() 함수는 비동기식으로 실행되므로,
+        가져온 값이 성공적으로 반환될 때 실행되는 addOnSuccessListener를 사용하여 값을 할당*/
         databaseReference.child("Users").child(userid).child("userGrade")
-            .get().addOnSuccessListener{
-                grade= it.value.toString()
+            .get().addOnSuccessListener {
+                grade = it.value.toString()
             }
-//        //#########resData 노드 참조#############
-        userReference=database.getReference("resData")
-
-        var i=0
-        var resCate="13"  //임시
-        var sendCate="임시"
-
-        //이전 액티비티에서 전달받은 key1 데이터 가져옴
-        var value=intent.getStringExtra("key1") //
-        Log.e("noSnap",value.toString())
-        when (value){
-            "고기/구이"->{resCate= "0"; sendCate="meat"}
-            "도시락"->{resCate= "1";sendCate= "rice"}
-            "돈까스/회/일식"->{resCate= "2";sendCate= "sushi"}
-            "백반/죽/국수"->{resCate= "3";sendCate= "lunch"}
-            "분식"->{resCate= "4" ;sendCate= "hotdog"}
-            "아시안"->{resCate= "5";sendCate= "asian"}
-            "양식"->{resCate= "6";sendCate= "western"}
-            "족발/보쌈"->{resCate= "7" ; sendCate= "pig"}
-            "중식"->{resCate= "8";sendCate= "chinese"}
-            "찜/탕/찌개"->{resCate= "9";sendCate= "zzim"}
-            "치킨"->{resCate= "10";sendCate= "chicken"}
-            "카페/디저트"-> {resCate= "11"; sendCate= "dessert" }
-            "패스트푸드"->{resCate= "12";sendCate= "burger"}
-            "피자"->{ resCate = "13";sendCate= "pizza"}
-        }
+        Log.d("userIdValue", userid)
+        Log.d("gradeValue", grade)
 
 
+        //####브랜드데이터 받아오기 시작####
 
-        val rescateName=value.toString()
+        //MainPage에서 key1 값 받아오기
+        var value=intent.getStringExtra("key1")
+
+        //Brand DB에서 value값과 같은 cate 값 가진 데이터 불러오기->ex)value가 '중식'이면 cate도 '중식'
+        val mDatabase = FirebaseDatabase.getInstance().getReference("Brand")
+        val brandListener= mDatabase.orderByChild("cate").equalTo(value)
+
+        //####recycleView 설정 시작#####
+        brandAdapter = BrandAdapter(brandList)
 
 
-        //####recycleView 설정#####
-        adapter = BrandAdapter(this)
+        // recycleView의 adapter에 BrandAdapter를 설정한다.
+        binding.recycleView.adapter=brandAdapter
 
-        val layoutManager=LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
-        var  recycleView:RecyclerView= findViewById(R.id.recycleView)
-
-        recycleView.layoutManager = layoutManager
-
-        recycleView.adapter=adapter
+        // layoutManager 설정
+        // LinearLayoutManager을 사용하여 수직으로 아이템을 배치한다.
+        binding.recycleView.layoutManager = LinearLayoutManager(this)
 
         var waitUserNum=0
-        databaseReference.addValueEventListener(object :ValueEventListener {
+        databaseReference.addValueEventListener(object :ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 //val test=snapshot.child("WaitUsers")
-                waitUserNum= snapshot.child("WaitUsers").child(resCate)
+                waitUserNum= snapshot.child("WaitUsers").child(cate_num.toString())
                     .child("waitUserNum")
                     .value.toString().toInt()
 
@@ -117,174 +92,42 @@ class CategoryPage : AppCompatActivity() {
             }
         })
 
-
-        //#############################카테고리불러오기###########//
-
-
-        adapter.brandList.add(Brand("상관없음","0","0","0"))
+        // 데이터베이스에서 데이터 읽어오기
+        getFBBrandData()
+    }
 
 
-
-        userReference.addValueEventListener(object :ValueEventListener {
+        //#####파이어베이스에서 가게 데이터 가져오기#####
+    private fun getFBBrandData() {
+        val brandListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                for (ds in snapshot.children) {
-                    val test = snapshot.child(i.toString())
-                    for (es in test.children) {
-                        val data= Brand(
-                            test.child("name").value.toString(),
-                            test.child("cate").value.toString(),
-                            test.child("cate_num").value.toString(),
-                            test.child("num").value.toString()
-                        )
-                        if (es.key.toString()=="cate_num"){
-                            val tempkey:String=es.value.toString()
-                            if(tempkey==resCate){
-                                adapter.brandList.add(data)
-                            }
-                        }
-                    }
-                    i++
+                brandList.clear()
+
+                for (data in snapshot.children) {
+                    val item = data.getValue(BrandModel::class.java)
+                    Log.d("CategoryPageActivity", "item: ${item}")
+                    // 리스트에 읽어 온 데이터를 넣어준다.
+                    brandList.add(item!!)
                 }
-
-
+                brandList.reverse()
+                // notifyDataSetChanged()를 호출하여 adapter에게 값이 변경 되었음을 알려준다.
+                brandAdapter.notifyDataSetChanged()
             }
 
-            //읽어오기에 실패했을 때
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-        })
-
-        //#############################카테고리불러오기끝###########//
-
-
-
-        var arr= arrayListOf<String>("0","0","0")
-
-        //버튼
-        val btn_search=findViewById<Button>(R.id.btn_search) //매칭 시작 버튼 일단 메인페이지가게설정
-        btn_search.setOnClickListener {
-
-            databaseReference.child("WaitUsers").child(resCate)
-                .child(waitUserNum.toString()).child("uid").setValue(userid)
-
-            databaseReference.child("WaitUsers").child(resCate)
-                .child(waitUserNum.toString()).child("grade").setValue(grade)
-            waitUserNum++
-            databaseReference.child("WaitUsers").child(resCate)
-                .child("waitUserNum").setValue(waitUserNum)
-
-
-            Log.e("nowBrandList", arr.toString())
-            //  Log.e("nowBrandList", arr[0].toString())
-
-
-            val intent = Intent(this, MatchLoading::class.java)
-            intent.putExtra("grade", grade.toString())
-            intent.putExtra("brandList", arr)
-            intent.putExtra("category", sendCate.toString())
-            intent.putExtra("failedNum",0)
-
-            //val arr = intent.getSerializableExtra("brandList") as ArrayList<String>
-            //브랜드리스트는 위와같이 받아오면됨! 이후 arr[0], arr[1]등 사용가능
-            startActivity(intent)
-        }
-
-        val btn_again=findViewById<Button>(R.id.btn_again) //다시하기버튼 메인페이지로
-        btn_again.setOnClickListener({
-            databaseReference.child("WaitUsers").child(resCate)
-                .child(waitUserNum.toString()).removeValue() //유저데이터초기화
-            //waitUserNum--
-            val intent=Intent(this, MainPage::class.java)
-            startActivity(intent)
-
-        })
-
-
-        var text:String
-        var cate:String
-        var cate_num:String
-        var num:String
-
-        var count=0 //브랜드 최대 3개선택
-        var temp=0
-
-
-        adapter.listener = object: OnBrandClickListener {
-            override fun onItemClick(
-                holder: BrandAdapter.ViewHolder?,
-                view: View?,
-                position: Int,
-                checkStatus: SparseBooleanArray,
-                text_name: CharSequence,
-                text_cate: CharSequence,
-                text_num: CharSequence,
-                text_cate_num: CharSequence,
-                text5: CharSequence,
-                text_grade: CharSequence
-            ) {
-
-                //3개 선택
-                if(checkStatus.get(position,true)){
-                    if (count <3 &&view != null) {
-                        view.setBackgroundColor(Color.YELLOW)
-                        count++
-
-                        text= text_name.toString()
-                        cate= text_cate.toString()
-                        cate_num= text_cate_num.toString()
-                        num= text_num.toString()
-
-
-                        var i=0
-                        var temp="0"
-                        while(i<3){
-                            if (arr[i]=="0") {
-                                temp = (i + 1).toString()
-                                arr[i]=cate_num
-                                break
-
-                            }
-                            i++
-                        }
-                        databaseReference.child("WaitUsers").child(resCate)
-                            .child(waitUserNum.toString())
-                            .child("brandList")
-
-                            .child(temp).setValue(cate_num)
-                        // 매칭을 위해 실시간데이터의 matchingUser데이터에 카테고리정보를 넣어줍니다
-                        checkStatus.put(position, false)
-                    }
-                }
-                else{ //클릭시 삭제하기. true 처음엔 true상태
-                    if (view != null) {
-                        view.setBackgroundColor(Color.WHITE)
-                        i=0
-                        while(i<3){
-                            if(arr[i]==text_num) {
-                                databaseReference
-                                    .child("WaitUsers").child(resCate)
-                                    .child(waitUserNum.toString()).child("brandList")
-                                    .child((i + 1).toString()).removeValue() //올라간데이터를삭제해줌
-                                arr[i]="0"
-                                count--
-                                break
-                            }
-                            i++
-                        }
-                        checkStatus.put(position,true)
-                    }
-                }
             }
         }
+        // addValueEventListener() 메서드로 DatabaseReference에 ValueEventListener를 추가한다.
+        BrandRef.brandRef.addValueEventListener(brandListener)
     }
 
 
 
 
-    fun showToast(message: String){
-        Toast.makeText(this,message,Toast.LENGTH_SHORT).show()
-    }
 
 
+
+        //가게 데이터
 }
+
+

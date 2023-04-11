@@ -2,14 +2,14 @@ package com.example.myapplication
 
 
 
-data class Brand(
+data class BrandModel(
 
     val name:String = "",
     val cate:String="",
-    val num:String ="",
     val cate_num: String="",
     val userid:String="",
     val grade: String =""
+
 
 
 )

@@ -112,9 +112,8 @@ class MainPage : AppCompatActivity() {
         //카테고리정보저장
         var cate="string"
 
+        //CategoryPage넘어감
         val intent = Intent(this, CategoryPage::class.java)
-
-
 
         //각 버튼들이 클릭했을 때
         adapter.listener = object : OnButtonItemClickListener{

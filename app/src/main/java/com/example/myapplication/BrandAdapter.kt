@@ -1,76 +1,49 @@
 package com.example.myapplication
 
-import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.activity_category.view.*
-import kotlinx.android.synthetic.main.brand_name.view.*
-import androidx.annotation.NonNull;
 
-
-
-
-class BrandAdapter(private val context: CategoryPage) : RecyclerView.Adapter<BrandAdapter.ViewHolder>() {
-    var brandList = mutableListOf<Brand>()
+class BrandAdapter(val context: MutableList<BrandModel>) : RecyclerView.Adapter<BrandAdapter.ViewHolder>() {
+    var brandModelList = mutableListOf<BrandModel>()
 
     lateinit var listener : OnBrandClickListener
 
-    private val checkStatus = SparseBooleanArray(0)
 
 
-    fun setListData(data:MutableList<Brand>){
-        brandList = data
-    }
-
+    //View Holder를 생성하고 View를 붙여주는 메서드
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BrandAdapter.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.brand_name,parent, false)
         return ViewHolder(view)
     }
 
+    //생성된 View Holder에 데이터를 바인딩 해주는 메서드
     override fun onBindViewHolder(holder: BrandAdapter.ViewHolder, position: Int) {
-
-        val item: Brand=brandList[position]
-        holder.name.text=item.name
-        holder.cate.text=item.cate
-        holder.num.text= item.num
-        holder.cate_num.text= item.cate_num
-        // holder.userid.text=item.userid
-        //holder.grade.text= item.grade
+        holder.bindItems(context[position])
     }
 
+    //데이터의 개수를 반환하는 메서드
     override fun getItemCount(): Int {
-        return brandList.size
+        return brandModelList.size
     }
 
+    // 화면에 표시 될 뷰를 저장하는 역할의 메서드
+    // View를 재활용 하기 위해 각 요소를 저장해두고 사용
     inner class ViewHolder(itemView: View):RecyclerView.ViewHolder(itemView){
 
-        val btn=itemView.btn_search
-        val name:TextView=itemView.findViewById(R.id.name)
-        val cate:TextView=itemView.findViewById(R.id.cate)
-        val num:TextView=itemView.findViewById(R.id.num)
-        val cate_num:TextView=itemView.findViewById(R.id.cate_num)
-        val userid:TextView=itemView.findViewById(R.id.userid)
-        val grade:TextView=itemView.findViewById(R.id.grade)
+        fun bindItems(context: BrandModel) {
+            val name = itemView.findViewById<TextView>(R.id.name)
+            val cate = itemView.findViewById<TextView>(R.id.cate)
+            val cate_num = itemView.findViewById<TextView>(R.id.cate_num)
 
-        init{
-            itemView.setOnClickListener{
-                listener.onItemClick(this,itemView,adapterPosition,
-                    checkStatus,
-                    itemView.name.text,
-                    itemView.cate.text,
-                    itemView.num.text,
-                    itemView.cate_num.text,
-                    itemView.userid.text,
-                    itemView.grade.text)
-            }
+            name.text = context.name
+            cate.text = context.cate
+            cate_num.text = context.cate_num
 
         }
 
 
     }
-
-
 }
