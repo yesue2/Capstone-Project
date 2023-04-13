@@ -58,21 +58,7 @@ class CategoryPage : AppCompatActivity() {
         val brandData = userReference.orderByChild("cate").equalTo(value)
 
 
-        brandAdapter = BrandAdapter()
-        brandAdapter.listData = getFBBrandData()
-        binding.recycleView.adapter = brandAdapter
-
-        /* recycyclerView Option */
-        binding.recycleView.layoutManager = LinearLayoutManager(this)
-        // binding.recyclerView.layoutManager = LinearLayoutManager(this,
-        //LinearLayoutManager.HORIZONTAL,false)
-        // GridLayoutManager(this, 3)
-        // StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL)
-    }
-
-
-    //#####파이어베이스에서 가게 데이터 가져오기#####
-    private fun getFBBrandData(): MutableList<BrandModel> {
+        // 브랜드 데이터 가져오기
         val brandList: MutableList<BrandModel> = mutableListOf()
         val brandListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -90,10 +76,19 @@ class CategoryPage : AppCompatActivity() {
             override fun onCancelled(error: DatabaseError) {}
         }
         //addValueEventListener() 메서드로 userReference에 ValueEventListener를 추가한다.
-        userReference.addValueEventListener(brandListener)
-        return brandList
-    }
+        userReference.orderByChild("cate").equalTo(value).addValueEventListener(brandListener)
 
+        brandAdapter = BrandAdapter()
+        brandAdapter.listData = brandList
+        binding.recycleView.adapter = brandAdapter
+
+        /* recycyclerView Option */
+        binding.recycleView.layoutManager = LinearLayoutManager(this)
+        // binding.recyclerView.layoutManager = LinearLayoutManager(this,
+        //LinearLayoutManager.HORIZONTAL,false)
+        // GridLayoutManager(this, 3)
+        // StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL)
+    }
 }
 
 
