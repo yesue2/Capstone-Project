@@ -1,37 +1,28 @@
 package com.example.myapplication
 
-//import com.google.firebase.firestore.FirebaseFirestore
-
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityCategoryBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.activity_main_page.*
 import kotlinx.android.synthetic.main.brand_name.*
 
 
 class CategoryPage : AppCompatActivity() {
     lateinit var brandAdapter: BrandAdapter
-    lateinit var binding: ActivityCategoryBinding
     lateinit var databaseReference: DatabaseReference
     lateinit var userReference: DatabaseReference
 
-    //받아온 데이터 넣을 리스트
-    private val brandList = mutableListOf<BrandModel>()
+    val binding by lazy { ActivityCategoryBinding.inflate(layoutInflater) }
 
+    var adapter = BrandAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_category)
-
-        //binding 변수 초기화
-        binding = ActivityCategoryBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
 
         var database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference()
@@ -50,84 +41,60 @@ class CategoryPage : AppCompatActivity() {
         databaseReference.child("Users").child(userid).child("userGrade")
             .get().addOnSuccessListener {
                 grade = it.value.toString()
+                Log.d("gradeValue", grade)
             }
+        //Log.d("gradeValue", grade)보다 먼저 logcat에 출력 -> grade 값을 비동기식으로 받아오기 때문
         Log.d("userIdValue", userid)
-        Log.d("gradeValue", grade)
 
 
         //####브랜드데이터 받아오기 시작####
 
         //MainPage에서 key1 값 받아오기
-        var value=intent.getStringExtra("key1")
+        var value = intent.getStringExtra("key1")
 
-        //Brand DB에서 value값과 같은 cate 값 가진 데이터 불러오기->ex)value가 '중식'이면 cate도 '중식'
-        val mDatabase = FirebaseDatabase.getInstance().getReference("Brand")
-        val brandListener= mDatabase.orderByChild("cate").equalTo(value)
+        //Brand DB에서 value값과 같은 cate 값 가진 데이터 불러오기 -> ex)value가 '중식'이면 cate도 '중식'
+        userReference = FirebaseDatabase.getInstance().getReference("Brand")
 
-        //####recycleView 설정 시작#####
-        brandAdapter = BrandAdapter(brandList)
+        val brandData = userReference.orderByChild("cate").equalTo(value)
 
 
-        // recycleView의 adapter에 BrandAdapter를 설정한다.
-        binding.recycleView.adapter=brandAdapter
+        brandAdapter = BrandAdapter()
+        brandAdapter.listData = getFBBrandData()
+        binding.recycleView.adapter = brandAdapter
 
-        // layoutManager 설정
-        // LinearLayoutManager을 사용하여 수직으로 아이템을 배치한다.
+        /* recycyclerView Option */
         binding.recycleView.layoutManager = LinearLayoutManager(this)
-
-        var waitUserNum=0
-        databaseReference.addValueEventListener(object :ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                //val test=snapshot.child("WaitUsers")
-                waitUserNum= snapshot.child("WaitUsers").child(cate_num.toString())
-                    .child("waitUserNum")
-                    .value.toString().toInt()
-
-                //에러 보고용 로그
-                Log.e("qwer",waitUserNum.toString())
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-        })
-
-        // 데이터베이스에서 데이터 읽어오기
-        getFBBrandData()
+        // binding.recyclerView.layoutManager = LinearLayoutManager(this,
+        //LinearLayoutManager.HORIZONTAL,false)
+        // GridLayoutManager(this, 3)
+        // StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL)
     }
 
 
-        //#####파이어베이스에서 가게 데이터 가져오기#####
-    private fun getFBBrandData() {
+    //#####파이어베이스에서 가게 데이터 가져오기#####
+    private fun getFBBrandData(): MutableList<BrandModel> {
+        val brandList: MutableList<BrandModel> = mutableListOf()
         val brandListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 brandList.clear()
-
                 for (data in snapshot.children) {
                     val item = data.getValue(BrandModel::class.java)
                     Log.d("CategoryPageActivity", "item: ${item}")
                     // 리스트에 읽어 온 데이터를 넣어준다.
-                    brandList.add(item!!)
+                    item?.let { brandList.add(it) }
                 }
-                brandList.reverse()
                 // notifyDataSetChanged()를 호출하여 adapter에게 값이 변경 되었음을 알려준다.
                 brandAdapter.notifyDataSetChanged()
             }
 
-            override fun onCancelled(error: DatabaseError) {
-            }
+            override fun onCancelled(error: DatabaseError) {}
         }
-        // addValueEventListener() 메서드로 DatabaseReference에 ValueEventListener를 추가한다.
-        BrandRef.brandRef.addValueEventListener(brandListener)
+        //addValueEventListener() 메서드로 userReference에 ValueEventListener를 추가한다.
+        userReference.addValueEventListener(brandListener)
+        return brandList
     }
 
-
-
-
-
-
-
-        //가게 데이터
 }
+
 
 

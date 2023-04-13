@@ -6,7 +6,7 @@ import android.view.View
 interface OnBrandClickListener {
 
     fun onItemClick(
-        holder: BrandAdapter.ViewHolder?,
+        holder: BrandAdapter.Holder?,
         view: View?,
         position: Int,
         checkboxStatus: SparseBooleanArray,
