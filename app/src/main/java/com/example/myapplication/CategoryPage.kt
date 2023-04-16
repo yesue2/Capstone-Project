@@ -1,19 +1,14 @@
 package com.example.myapplication
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.util.SparseBooleanArray
-import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.databinding.ActivityCategoryBinding
-import com.example.myapplication.matching.MatchLoading
-import com.example.myapplication.matching.MatchModel
-import com.example.myapplication.matching.SelectedBrandModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.activity_main_page.*
+import kotlinx.android.synthetic.main.brand_name.*
 
 
 class CategoryPage : AppCompatActivity() {
@@ -24,9 +19,6 @@ class CategoryPage : AppCompatActivity() {
     val binding by lazy { ActivityCategoryBinding.inflate(layoutInflater) }
 
     var adapter = BrandAdapter()
-
-    // 사용자가 선택한 가게 리스트를 담을 리스트
-    val selectedBrandList: MutableList<BrandModel> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,36 +55,26 @@ class CategoryPage : AppCompatActivity() {
         //Brand DB에서 value값과 같은 cate 값 가진 데이터 불러오기 -> ex)value가 '중식'이면 cate도 '중식'
         userReference = FirebaseDatabase.getInstance().getReference("Brand")
 
+        val brandData = userReference.orderByChild("cate").equalTo(value)
+
+
         // 브랜드 데이터 가져오기
         val brandList: MutableList<BrandModel> = mutableListOf()
-        val matchList: MutableList<MatchModel> = mutableListOf()
-
         val brandListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 brandList.clear()
-
                 for (data in snapshot.children) {
                     val item = data.getValue(BrandModel::class.java)
                     Log.d("CategoryPageActivity", "item: ${item}")
-
-                    // MatchModel 업데이트
-                    if (item != null && item.name.isNotBlank()) {
-                        val itemName = item.name
-                        matchMaking(itemName, matchList)
-                    }
-
                     // 리스트에 읽어 온 데이터를 넣어준다.
                     item?.let { brandList.add(it) }
                 }
-
-                // brandList를 brandAdapter.listData에 할당
-                brandAdapter.listData = brandList
+                // notifyDataSetChanged()를 호출하여 adapter에게 값이 변경 되었음을 알려준다.
                 brandAdapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {}
         }
-
         //addValueEventListener() 메서드로 userReference에 ValueEventListener를 추가한다.
         userReference.orderByChild("cate").equalTo(value).addValueEventListener(brandListener)
 
@@ -106,10 +88,6 @@ class CategoryPage : AppCompatActivity() {
         //LinearLayoutManager.HORIZONTAL,false)
         // GridLayoutManager(this, 3)
         // StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL)
-
-        //####매칭 시작####
-
-
     }
 }
 
