@@ -1,9 +1,11 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main_page.*
 import kotlinx.android.synthetic.main.brand_name.*
+import kotlinx.android.synthetic.main.brand_name.view.*
 
 
 class CategoryPage : AppCompatActivity() {
@@ -23,7 +26,8 @@ class CategoryPage : AppCompatActivity() {
 
     var adapter = BrandAdapter()
 
-
+    // 사용자가 선택한 가게 리스트를 저장할 변수
+    val selectedBrands: MutableList<BrandModel> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,13 +91,8 @@ class CategoryPage : AppCompatActivity() {
 
         /* recycyclerView Option */
         binding.recycleView.layoutManager = LinearLayoutManager(this)
-        // binding.recyclerView.layoutManager = LinearLayoutManager(this,
-        //LinearLayoutManager.HORIZONTAL,false)
-        // GridLayoutManager(this, 3)
-        // StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL)
 
-        //####
-
+        //####매칭####
 
     }
 }
