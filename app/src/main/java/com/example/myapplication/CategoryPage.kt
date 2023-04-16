@@ -1,7 +1,10 @@
 package com.example.myapplication
 
+import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.databinding.ActivityCategoryBinding
@@ -19,6 +22,8 @@ class CategoryPage : AppCompatActivity() {
     val binding by lazy { ActivityCategoryBinding.inflate(layoutInflater) }
 
     var adapter = BrandAdapter()
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,8 +60,6 @@ class CategoryPage : AppCompatActivity() {
         //Brand DB에서 value값과 같은 cate 값 가진 데이터 불러오기 -> ex)value가 '중식'이면 cate도 '중식'
         userReference = FirebaseDatabase.getInstance().getReference("Brand")
 
-        val brandData = userReference.orderByChild("cate").equalTo(value)
-
 
         // 브랜드 데이터 가져오기
         val brandList: MutableList<BrandModel> = mutableListOf()
@@ -88,6 +91,10 @@ class CategoryPage : AppCompatActivity() {
         //LinearLayoutManager.HORIZONTAL,false)
         // GridLayoutManager(this, 3)
         // StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL)
+
+        //####
+
+
     }
 }
 
