@@ -18,16 +18,11 @@ import kotlinx.android.synthetic.main.brand_name.view.*
 
 
 class CategoryPage : AppCompatActivity() {
-    lateinit var brandAdapter: BrandAdapter
+    private lateinit var brandAdapter: BrandAdapter
     lateinit var databaseReference: DatabaseReference
     lateinit var userReference: DatabaseReference
 
     val binding by lazy { ActivityCategoryBinding.inflate(layoutInflater) }
-
-    var adapter = BrandAdapter()
-
-    // 사용자가 선택한 가게 리스트를 저장할 변수
-    val selectedBrands: MutableList<BrandModel> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,8 +80,8 @@ class CategoryPage : AppCompatActivity() {
         //addValueEventListener() 메서드로 userReference에 ValueEventListener를 추가한다.
         userReference.orderByChild("cate").equalTo(value).addValueEventListener(brandListener)
 
-        brandAdapter = BrandAdapter()
-        brandAdapter.listData = brandList
+        brandAdapter = BrandAdapter(this)
+        brandAdapter.brandList = brandList
         binding.recycleView.adapter = brandAdapter
 
         /* recycyclerView Option */
