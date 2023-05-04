@@ -5,11 +5,11 @@ import android.view.View
 
 interface OnBrandClickListener {
 
-    fun onItemClick(
+    fun onBrandClick(
         holder: BrandAdapter.ViewHolder?,
         view: View?,
         position: Int,
-        checkboxStatus: SparseBooleanArray,
+        checkStatus: SparseBooleanArray,
         text1: CharSequence,
         text2: CharSequence,
         text3: CharSequence,

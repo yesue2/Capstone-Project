@@ -12,8 +12,8 @@ import javax.mail.internet.MimeMessage
 
 class MailSender : Authenticator(){
     // 보내는 사람 이메일과 비밀번호
-    val Sender_Email = "team4delishare@gmail.com"
-    val password = "oomltgwdvmqptjnt"
+    val Sender_Email = "capstone2deli@gmail.com"
+    val password = "fsoosgdkenjvremt"
     val Authnumber:Int = Random().nextInt(99999)+10000 //인증번호 생성 변수
 
     // 보내는 사람 계정 체크

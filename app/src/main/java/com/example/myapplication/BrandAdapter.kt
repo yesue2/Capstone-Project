@@ -1,88 +1,72 @@
 package com.example.myapplication
 
-import android.content.ContentValues.TAG
 import android.graphics.Color
-import android.util.Log
 import android.util.SparseBooleanArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.databinding.BrandNameBinding
-import com.example.myapplication.matching.SelectedBrandModel
+import kotlinx.android.synthetic.main.activity_category.view.*
+import kotlinx.android.synthetic.main.brand_name.view.*
 
-class BrandAdapter : RecyclerView.Adapter<BrandAdapter.Holder>() {
+class BrandAdapter(private val context: CategoryPage) : RecyclerView.Adapter<BrandAdapter.ViewHolder>() {
+    var brandList = mutableListOf<BrandModel>()
 
-    private lateinit var listener: OnBrandClickListener
-    var listData = mutableListOf<BrandModel>()
-    private val selectedPositions = SparseBooleanArray()
+    lateinit var listener : OnBrandClickListener
 
-    fun setOnBrandClickListener(listener: OnBrandClickListener) {
-        this.listener = listener
+    private val checkStatus = SparseBooleanArray(0)
+    private var onItemClickListener: ((BrandModel) -> Unit)? = null
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BrandAdapter.ViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.brand_name,parent, false)
+
+        return ViewHolder(view)
     }
 
-    fun setData(listData: MutableList<BrandModel>) {
-        this.listData = listData
-        notifyDataSetChanged()
-    }
+    override fun onBindViewHolder(holder: BrandAdapter.ViewHolder, position: Int) {
 
-    fun getSelectedBrands(): List<BrandModel> {
-        val selectedBrands = mutableListOf<BrandModel>()
-        for (i in 0 until selectedPositions.size()) {
-            if (selectedPositions.valueAt(i)) {
-                selectedBrands.add(listData[selectedPositions.keyAt(i)])
-            }
-        }
-        return selectedBrands
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
-        val binding = BrandNameBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent, false
-        )
-
-        return Holder(binding)
-    }
-
-    override fun onBindViewHolder(holder: Holder, position: Int) {
-        val brandmodel = listData[position]
-        holder.bind(brandmodel)
-
-        if (selectedPositions.get(position)) {
-            holder.itemView.setBackgroundColor(Color.LTGRAY)
-        } else {
-            holder.itemView.setBackgroundColor(Color.WHITE)
-        }
+        val brandmodel: BrandModel = brandList[position]
+        holder.name.text = brandmodel.name
+        holder.cate.text = brandmodel.cate
+        holder.userid.text = brandmodel.userid
+        holder.grade.text = brandmodel.grade
     }
 
     override fun getItemCount(): Int {
-        return listData.size
+        return brandList.size
     }
 
-    inner class Holder(val binding: BrandNameBinding) : RecyclerView.ViewHolder(binding.root) {
+    fun setOnItemClickListener(listener: (BrandModel) -> Unit) {
+        onItemClickListener = listener
+    }
+
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+        val name: TextView =itemView.findViewById(R.id.name)
+        val cate:TextView=itemView.findViewById(R.id.cate)
+        val userid:TextView=itemView.findViewById(R.id.userid)
+        val grade:TextView=itemView.findViewById(R.id.grade)
 
         init {
             itemView.setOnClickListener {
-                val position = adapterPosition
-                if (selectedPositions.get(position)) {
-                    selectedPositions.delete(position)
-                } else {
-                    selectedPositions.put(position, true)
+                onItemClickListener?.let {
+                    val position = adapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        val brand = brandList[position]
+                        it(brand)
+
+                        // 선택한 가게의 배경을 회색으로 바꿔줍니다.
+                        if (!checkStatus.get(position, false)) {
+                            itemView.setBackgroundColor(Color.LTGRAY)
+                            checkStatus.put(position, true)
+                        } else {
+                            itemView.setBackgroundColor(Color.WHITE)
+                            checkStatus.delete(position)
+                        }
+                    }
                 }
-                notifyDataSetChanged()
-                listener.onBrandClick(getSelectedBrands())
             }
         }
-
-        fun bind(brandModel: BrandModel) {
-            binding.name.text = brandModel.name
-            binding.cate.text = brandModel.cate
-        }
-    }
-
-    interface OnBrandClickListener {
-        fun onBrandClick(selectedBrands: List<BrandModel>)
     }
 }
-

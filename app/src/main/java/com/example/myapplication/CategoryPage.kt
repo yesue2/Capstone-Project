@@ -1,32 +1,36 @@
 package com.example.myapplication
 
+import android.content.ContentValues.TAG
 import android.content.Intent
-import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.databinding.ActivityCategoryBinding
+import com.example.myapplication.matching.MatchLoading
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import kotlinx.android.synthetic.main.activity_main_page.*
-import kotlinx.android.synthetic.main.brand_name.*
-import kotlinx.android.synthetic.main.brand_name.view.*
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 
 class CategoryPage : AppCompatActivity() {
-    private lateinit var brandAdapter: BrandAdapter
+    lateinit var brandAdapter: BrandAdapter
     lateinit var databaseReference: DatabaseReference
     lateinit var userReference: DatabaseReference
 
     val binding by lazy { ActivityCategoryBinding.inflate(layoutInflater) }
 
+    var adapter = BrandAdapter(this)
+    var selectedBrands: MutableList<Any> = mutableListOf()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+
 
         var database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference()
@@ -44,8 +48,11 @@ class CategoryPage : AppCompatActivity() {
         가져온 값이 성공적으로 반환될 때 실행되는 addOnSuccessListener를 사용하여 값을 할당*/
         databaseReference.child("Users").child(userid).child("userGrade")
             .get().addOnSuccessListener {
-                grade = it.value.toString()
-                Log.d("gradeValue", grade)
+                //grade 변수에 값을 할당하기 전에 TextView 객체가 null 인지 확인
+                if (it != null && it.value != null) {
+                    grade = it.value.toString()
+                    Log.d("gradeValue", grade)
+                }
             }
         //Log.d("gradeValue", grade)보다 먼저 logcat에 출력 -> grade 값을 비동기식으로 받아오기 때문
         Log.d("userIdValue", userid)
@@ -84,13 +91,95 @@ class CategoryPage : AppCompatActivity() {
         brandAdapter.brandList = brandList
         binding.recycleView.adapter = brandAdapter
 
-        /* recycyclerView Option */
+        /* recyclerView Option */
         binding.recycleView.layoutManager = LinearLayoutManager(this)
+        //////////////////
 
-        //####매칭####
+        brandAdapter.setOnItemClickListener { brand ->
+            // 선택된 가게 리스트에 추가
+            if (selectedBrands.size <= 3) {
+                selectedBrands.add(brand)
+            }
+            Log.d("CategoryPageActivity", selectedBrands.toString())
+        }
 
+        val button: Button = findViewById(R.id.btn_search)
+        button.setOnClickListener {
+            startMatching(selectedBrands)
+        }
+        val btn_again=findViewById<Button>(R.id.btn_again) //다시하기버튼 메인페이지로
+        btn_again.setOnClickListener({
+            val intent=Intent(this, MainPage::class.java)
+            startActivity(intent)
+
+        })
     }
+    fun startMatching(selectedBrands: List<Any>) {
+        // 선택된 가게 리스트를 가져오기
+        val mySelectedBrands = selectedBrands.filterIsInstance<BrandModel>().map { it.name }
+
+        Log.d("CategoryPageActivity", mySelectedBrands.toString())
+
+        // 선택된 가게 리스트가 비어있으면 에러 메시지 띄우고 함수 종료
+        if (mySelectedBrands.isEmpty()) {
+            Toast.makeText(this, "최소 1개 이상의 가게를 선택해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (mySelectedBrands.size >= 1) {
+            Toast.makeText(this, "매칭이 시작되었습니다.", Toast.LENGTH_SHORT).show()
+        }
+
+        // 매칭을 위해 필요한 데이터를 가져오기
+        val userReference = FirebaseDatabase.getInstance().getReference("Users")
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUserId = currentUser?.uid
+        var waitUsersRef = FirebaseDatabase.getInstance().getReference("WaitUsers")
+
+        // 현재 사용자의 정보를 가져오기
+        userReference.child(currentUserId!!).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val user = snapshot.getValue(UserModel::class.java)
+
+                // WaitUsers 노드에 사용자 정보 추가하기
+                val waitUser = WaitUserModel(currentUserId, user!!.nickname,
+                    mySelectedBrands as ArrayList<String>
+                )
+                waitUsersRef.child(currentUserId).setValue(waitUser)
+
+                // 매칭 대기 중인 사용자 찾기
+                waitUsersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (waitUserSnapshot in snapshot.children) {
+                            val waitUser = waitUserSnapshot.getValue(WaitUserModel::class.java)
+
+                            if (waitUser != null && waitUser.uid != currentUserId && waitUser.brands != null) {
+                                val intersection = waitUser.brands!!.intersect(mySelectedBrands)
+                                if (intersection.isNotEmpty()) {
+                                    waitUsersRef.child(currentUserId).removeValue()
+                                    waitUsersRef.child(waitUser.uid.toString()).removeValue()
+
+                                    val intent = Intent(this@CategoryPage, MatchLoading::class.java)
+                                    intent.putExtra("mySelectedBrands", mySelectedBrands.toTypedArray())
+                                    intent.putExtra("matchedUserId", waitUser.uid)
+                                    startActivity(intent)
+
+                                    return
+                                }
+                            }
+                        }
+
+                        // 매칭 대기 중인 사용자가 없는 경우, 매칭 실패 메시지 띄우기
+                        Toast.makeText(this@CategoryPage, "매칭에 실패했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show()
+
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
 }
-
-
-
