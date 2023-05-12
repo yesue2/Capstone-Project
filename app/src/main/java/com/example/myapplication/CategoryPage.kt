@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -12,8 +11,6 @@ import com.example.myapplication.databinding.ActivityCategoryBinding
 import com.example.myapplication.matching.MatchLoading
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 
 class CategoryPage : AppCompatActivity() {
@@ -115,6 +112,7 @@ class CategoryPage : AppCompatActivity() {
         })
     }
     fun startMatching(selectedBrands: List<Any>) {
+
         // 선택된 가게 리스트를 가져오기
         val mySelectedBrands = selectedBrands.filterIsInstance<BrandModel>().map { it.name }
 
@@ -142,10 +140,19 @@ class CategoryPage : AppCompatActivity() {
                 val user = snapshot.getValue(UserModel::class.java)
 
                 // WaitUsers 노드에 사용자 정보 추가하기
-                val waitUser = WaitUserModel(currentUserId, user!!.nickname,
-                    mySelectedBrands as ArrayList<String>
+                val waitUser = WaitUserModel(
+                    currentUserId,
+                    mySelectedBrands.toList()
                 )
-                waitUsersRef.child(currentUserId).setValue(waitUser)
+
+                // 해시맵 생성
+                val hashMap = HashMap<String, Any>()
+                hashMap["uid"] = waitUser.uid!!
+                hashMap["brands"] = waitUser.brands as List<String>
+                hashMap["timestamp"] = ServerValue.TIMESTAMP
+
+                // WaitUsers 노드에 사용자 정보 추가하기
+                waitUsersRef.child(currentUserId).setValue(hashMap)
 
                 // 매칭 대기 중인 사용자 찾기
                 waitUsersRef.addListenerForSingleValueEvent(object : ValueEventListener {
