@@ -50,7 +50,7 @@
             android:name=".CategoryPage"
             android:exported="false" />
         <activity
-            android:name=".matching.MatchLoading"
+            android:name=".matching.MatchingLoad"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"

@@ -47,6 +47,17 @@
 
                 />
             <TextView
+                android:id="@+id/num"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                android:layout_marginLeft="10dp"
+
+                android:textSize="15dp"
+                android:visibility="gone"
+
+                />
+            <TextView
                 android:id="@+id/userid"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

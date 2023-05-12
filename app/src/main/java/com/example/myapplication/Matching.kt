@@ -1,27 +1,27 @@
-package com.example.myapplication.matching
+package com.example.myapplication
 
 import com.google.firebase.database.DatabaseReference
 
 
 class Matching{
-    private var userList: MutableList<WaitUserData> = mutableListOf()
-    private var failUserList : MutableList<WaitUserData> = mutableListOf()
+    private var userList: MutableList<WaitUserModel> = mutableListOf()
+    private var failUserList : MutableList<WaitUserModel> = mutableListOf()
     private var waitUserNum: Int = 0
-    private var mateList = mutableListOf<MateData>()
+    private var mateList = mutableListOf<MateModel>()
     var uidList = mutableListOf<String>()
     var gradeList = mutableListOf<Float>()
     var brandListList = mutableListOf<MutableList<Int>>()
 
-    fun getUserList() : MutableList<WaitUserData>{
+    fun getUserList() : MutableList<WaitUserModel>{
         return this.userList
     }
-    fun getFailUserList() : MutableList<WaitUserData>{
+    fun getFailUserList() : MutableList<WaitUserModel>{
         return this.failUserList
     }
     fun getWaitUserNum() : Int{
         return this.waitUserNum
     }
-    fun getMateList() : MutableList<MateData>{
+    fun getMateList() : MutableList<MateModel>{
         return this.mateList
     }
 
@@ -52,7 +52,7 @@ class Matching{
                             list.add(it.value.toString().toInt())
                         }
                         brandListList.add(list)
-                        val waitUser = WaitUserData(uidList[rank], gradeList[rank], rank, brandListList[rank])
+                        val waitUser = WaitUserModel(uidList[rank], gradeList[rank], rank, brandListList[rank])
                         this.userList.add(waitUser)
                     }
                 }
@@ -60,15 +60,15 @@ class Matching{
         }
     }
 
-// 임시로 초기화
+    // 임시로 초기화
     fun init() {
-        val user1 = WaitUserData("1", 0f, 5, mutableListOf(1, 3, 5))
-        val user2 = WaitUserData("2", 1f, 4, mutableListOf(1, 3, 7))
-        val user3 = WaitUserData("3", 4.7f, 3, mutableListOf(4, 7))
-        val user4 = WaitUserData("4", 4.5f, 2, mutableListOf(5, 6, 4))
-        val user5 = WaitUserData("5", 4f, 1, mutableListOf(0))
-        val user6 = WaitUserData("6", 2f, 0, mutableListOf(2, 1))
-        val user7 = WaitUserData("7",4.3f,-1,mutableListOf(8)) // 매칭에 실패할 유저
+        val user1 = WaitUserModel("1", 0f, 5, mutableListOf(1, 3, 5))
+        val user2 = WaitUserModel("2", 1f, 4, mutableListOf(1, 3, 7))
+        val user3 = WaitUserModel("3", 4.7f, 3, mutableListOf(4, 7))
+        val user4 = WaitUserModel("4", 4.5f, 2, mutableListOf(5, 6, 4))
+        val user5 = WaitUserModel("5", 4f, 1, mutableListOf(0))
+        val user6 = WaitUserModel("6", 2f, 0, mutableListOf(2, 1))
+        val user7 = WaitUserModel("7",4.3f,-1,mutableListOf(8)) // 매칭에 실패할 유저
         userList.add(user1)
         userList.add(user2)
         userList.add(user3)
@@ -81,7 +81,7 @@ class Matching{
 
     // 정렬하기 : kotlin 내부 sort 클래스 이용, 퀵 정렬.
     fun sort() {
-        this.userList.sortWith(compareBy<WaitUserData> { it.grade }.thenBy { it.rank })
+        this.userList.sortWith(compareBy<WaitUserModel> { it.grade }.thenBy { it.rank })
         this.userList.reverse()
     }
 
@@ -112,13 +112,13 @@ class Matching{
 
     // 우선순위에 따라 선택한 후 mate table return
     fun choice(){
-        var mateList: MutableList<MateData> = mutableListOf()
-        var finishList: MutableList<WaitUserData> = mutableListOf()
-        var mate = MateData("",mutableListOf())
+        var mateList: MutableList<MateModel> = mutableListOf()
+        var finishList: MutableList<WaitUserModel> = mutableListOf()
+        var mate = MateModel("",mutableListOf())
         var success: Int
 
         for (user in this.userList) {
-            mate = MateData("",mutableListOf())
+            mate = MateModel("",mutableListOf())
             if (finishList.contains(user)) {
                 continue
             }

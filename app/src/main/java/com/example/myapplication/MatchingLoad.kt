@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.example.myapplication.Matching
 import com.example.myapplication.MatchingFailed
 import com.example.myapplication.MatchingSuccess
 import com.example.myapplication.R
@@ -20,7 +21,7 @@ import kotlinx.coroutines.NonCancellable.cancel
 import kotlin.concurrent.timer
 
 
-class MatchLoading : AppCompatActivity() {
+class MatchingLoad : AppCompatActivity() {
 
     private lateinit var loading: ImageView
     private lateinit var ctgImage : ImageView
@@ -40,9 +41,9 @@ class MatchLoading : AppCompatActivity() {
         // loading.gif 파일 불러오기
         Glide.with(this).load(R.raw.loading).circleCrop().into(loading)
         var category = intent.extras?.getString("category")
-        var categoryNum : Int
+        var categoryNum: Int
 
-        when(category) {
+        when (category) {
             "pizza" -> {
                 Glide.with(this).load(R.drawable.icon_pizza).circleCrop().into(ctgImage)
                 categoryNum = 13
@@ -104,7 +105,6 @@ class MatchLoading : AppCompatActivity() {
                 categoryNum = -1
             }
         }
-
         var waitUsers = FirebaseDatabase.getInstance().getReference("WaitUsers").child("$categoryNum")
         var waitUserNum =
             FirebaseDatabase.getInstance().getReference("WaitUsers").child("$categoryNum").child("waitUserNum")
