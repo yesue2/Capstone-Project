@@ -12,6 +12,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityCategoryBinding
 import com.example.myapplication.matching.MatchingLoad
 import com.google.firebase.auth.FirebaseAuth
@@ -21,54 +22,64 @@ import kotlinx.android.synthetic.main.brand_name.*
 
 
 class CategoryPage : AppCompatActivity() {
-    lateinit var brandAdapter: BrandAdapter
-    lateinit var databaseReference: DatabaseReference
-    lateinit var userReference: DatabaseReference
+    private lateinit var adapter: BrandAdapter
+    private lateinit var databaseReference: DatabaseReference
+    private lateinit var userReference: DatabaseReference
 
-    val binding by lazy { ActivityCategoryBinding.inflate(layoutInflater) }
 
-    var adapter = BrandAdapter(this)
-    var selectedBrands: MutableList<Any> = mutableListOf()
+    // private lateinit var firestore: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(binding.root)
+        setContentView(R.layout.activity_category)
 
 
         var database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference()
 
-        //####유저 데이터 받아오기 시작####
+        var userid="id" //유저아이디, 별점은 선택시 전송하는걸로
+        var grade="3.5"
 
-        var userid = "id" //유저아이디, 별점은 선택시 전송하는걸로
-        var grade = "2.5"
-
-        //userId 값 가져와서 userid 변수에 할당
+        //##유저아이디###########
         userid = FirebaseAuth.getInstance().currentUser?.uid.toString()
+        userReference = databaseReference.child("Users").child(userid).child("userGrade")
 
-        //userGrade 값 가져와서 grade 변수에 할당
-        /*get() 함수는 비동기식으로 실행되므로,
-        가져온 값이 성공적으로 반환될 때 실행되는 addOnSuccessListener를 사용하여 값을 할당*/
-        databaseReference.child("Users").child(userid).child("userGrade")
-            .get().addOnSuccessListener {
-                //grade 변수에 값을 할당하기 전에 TextView 객체가 null 인지 확인
-                if (it != null && it.value != null) {
-                    grade = it.value.toString()
-                    Log.d("gradeValue", grade)
-                }
-            }
-        //Log.d("gradeValue", grade)보다 먼저 logcat에 출력 -> grade 값을 비동기식으로 받아오기 때문
-        Log.d("userIdValue", userid)
-
+        userReference.get().addOnSuccessListener {
+            grade = it.value.toString()
+        }
 
         //####브랜드데이터 받아오기 시작####
 
+        //Brand DB에서 value값과 같은 cate 값 가진 데이터 불러오기 -> ex)value가 '중식'이면 cate도 '중식'
+        userReference=database.getReference("Brand")
+
+        // 브랜드 데이터 가져오기
+        val brandList: MutableList<BrandModel> = mutableListOf()
+        val brandListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                brandList.clear()
+                for (data in snapshot.children) {
+                    val item = data.getValue(BrandModel::class.java)
+                    Log.d("CategoryPageActivity", "item: ${item}")
+                    // 리스트에 읽어 온 데이터를 넣어준다.
+                    item?.let { brandList.add(it) }
+                }
+                // notifyDataSetChanged()를 호출하여 adapter에게 값이 변경 되었음을 알려준다.
+                adapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        }
+
         //MainPage에서 key1 값 받아오기
         var value = intent.getStringExtra("key1")
+        //addValueEventListener() 메서드로 userReference에 ValueEventListener를 추가한다.
+        userReference.orderByChild("cate").equalTo(value).addValueEventListener(brandListener)
 
         var resCate = "13"  //임시
         var sendCate = "임시"
 
+        Log.e("noSnap",value.toString())
         when (value) {
             "고기/구이" -> {
                 resCate = "0"; sendCate = "meat"
@@ -114,36 +125,20 @@ class CategoryPage : AppCompatActivity() {
             }
         }
 
-        //Brand DB에서 value값과 같은 cate 값 가진 데이터 불러오기 -> ex)value가 '중식'이면 cate도 '중식'
-        userReference = FirebaseDatabase.getInstance().getReference("Brand")
-
-
-        // 브랜드 데이터 가져오기
-        val brandList: MutableList<BrandModel> = mutableListOf()
-        val brandListener = object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                brandList.clear()
-                for (data in snapshot.children) {
-                    val item = data.getValue(BrandModel::class.java)
-                    Log.d("CategoryPageActivity", "item: ${item}")
-                    // 리스트에 읽어 온 데이터를 넣어준다.
-                    item?.let { brandList.add(it) }
-                }
-                // notifyDataSetChanged()를 호출하여 adapter에게 값이 변경 되었음을 알려준다.
-                brandAdapter.notifyDataSetChanged()
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
-        }
         //addValueEventListener() 메서드로 userReference에 ValueEventListener를 추가한다.
         userReference.orderByChild("cate").equalTo(value).addValueEventListener(brandListener)
 
-        brandAdapter = BrandAdapter(this)
-        brandAdapter.brandList = brandList
-        binding.recycleView.adapter = brandAdapter
 
-        /* recyclerView Option */
-        binding.recycleView.layoutManager = LinearLayoutManager(this)
+        adapter = BrandAdapter(this)
+
+        val layoutManager: RecyclerView.LayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        val recyclerView: RecyclerView = findViewById(R.id.recycleView)
+
+        recyclerView.layoutManager = layoutManager
+
+        adapter.brandList = brandList
+
+        recycleView.adapter = adapter
         //////////////////
 
         var waitUserNum = 0
@@ -166,14 +161,47 @@ class CategoryPage : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+
             }
         })
 
-        var arr = arrayListOf<String>("0", "0", "0")
+        var ii = 0
+        adapter.brandList.add(BrandModel("상관없음","0","0","0"))
+
+        userReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (ds in snapshot.children) {
+                    val test = snapshot.child(ii.toString())
+                    for (es in test.children) {
+                        val data= BrandModel(
+                            test.child("name").value.toString(),
+                            test.child("cate").value.toString(),
+                            test.child("cate_num").value.toString(),
+                            test.child("num").value.toString()
+                        )
+                        if (es.key.toString()=="cate_num"){
+                            val tempkey:String=es.value.toString()
+                            if(tempkey==resCate){
+                                adapter.brandList.add(data)
+                            }
+                        }
+                    }
+                    ii++
+                }
+            }
+
+            //읽어오기에 실패했을 때
+            override fun onCancelled(error: DatabaseError) {
+                // 처리 코드 추가
+            }
+        })
+
+
+
+        var arr = arrayListOf("0", "0", "0")
 
         //버튼
-        val btn_search = findViewById<Button>(R.id.btn_search) //매칭 시작 버튼 일단 메인페이지가게설정
+        val btn_search = findViewById<Button>(R.id.btn_search) //매칭 시작 버튼
         btn_search.setOnClickListener {
 
             databaseReference.child("WaitUsers").child(resCate)
@@ -185,21 +213,19 @@ class CategoryPage : AppCompatActivity() {
             databaseReference.child("WaitUsers").child(resCate)
                 .child("waitUserNum").setValue(waitUserNum)
 
+            val serializedArr = ArrayList(arr.toList())
 
             Log.e("nowBrandList", arr.toString())
-            //  Log.e("nowBrandList", arr[0].toString())
-
 
             val intent = Intent(this, MatchingLoad::class.java)
-            intent.putExtra("grade", grade)
-            intent.putExtra("brandList", arr)
-            intent.putExtra("category", sendCate)
+            intent.putExtra("grade", grade.toString())
+            intent.putExtra("brandList", serializedArr)
+            intent.putExtra("category", sendCate.toString())
             intent.putExtra("failedNum", 0)
 
-            //val arr = intent.getSerializableExtra("brandList") as ArrayList<String>
-            //브랜드리스트는 위와같이 받아오면됨! 이후 arr[0], arr[1]등 사용가능
             startActivity(intent)
         }
+
 
         val btn_again = findViewById<Button>(R.id.btn_again) //다시하기버튼 메인페이지로
         btn_again.setOnClickListener({
