@@ -17,7 +17,7 @@ class ButtonAdapter : RecyclerView.Adapter<ButtonAdapter.ViewHolder>(){
     lateinit var listener: OnButtonItemClickListener
     var colorList = ArrayList<Int>()
     var colorIdx = 0
-    lateinit var context: MainPage
+    lateinit var context: CategoryPage
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.mainpage_item, parent, false)

@@ -13,7 +13,6 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import java.util.*
 import kotlin.collections.HashMap
 
 class SelectImageActivity : AppCompatActivity() {
@@ -50,7 +49,7 @@ class SelectImageActivity : AppCompatActivity() {
             else {
                 uploadImage()
                 //메인 페이지로 이동
-                val intent = Intent(this, MainPage::class.java)
+                val intent = Intent(this, CategoryPage::class.java)
                 startActivity(intent)
                 finish()
             }

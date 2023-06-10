@@ -3,8 +3,6 @@ package com.example.myapplication
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
@@ -104,7 +102,7 @@ class FinishActivity : AppCompatActivity() {
 
         }*/
         button.setOnClickListener {
-            val intent = Intent(this, MainPage::class.java)
+            val intent = Intent(this, CategoryPage::class.java)
             startActivity(intent)
         }
     }

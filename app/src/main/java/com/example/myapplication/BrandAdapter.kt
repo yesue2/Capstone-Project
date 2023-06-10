@@ -44,7 +44,6 @@ class BrandAdapter(private val context: CategoryPage) : RecyclerView.Adapter<Bra
 
     inner class ViewHolder(itemView: View):RecyclerView.ViewHolder(itemView){
 
-        val btn=itemView.btn_search
         val name:TextView=itemView.findViewById(R.id.name)
         val cate:TextView=itemView.findViewById(R.id.cate)
         val num:TextView=itemView.findViewById(R.id.num)

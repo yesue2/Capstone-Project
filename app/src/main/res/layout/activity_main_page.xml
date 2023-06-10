@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/mainpage_background"
-    tools:context=".MainPage">
+    tools:context=".CategoryPage">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -29,7 +29,7 @@
             android:layout_height="match_parent">
 
             <ImageView
-                android:id="@+id/icon_mypage"
+                android:id="@+id/mypage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="200dp"
@@ -43,23 +43,53 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:text="Categories"
+        android:layout_marginTop="96dp"
+        android:text="Welcome to Delishare"
         android:textColor="#050505"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.118"
+        app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="40dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <Button
+        android:id="@+id/posting_page"
+        android:layout_width="279dp"
+        android:layout_height="59dp"
+        android:layout_marginTop="70dp"
+        android:backgroundTint="#FFFED567"
+        android:text="나눔 글 올리기"
+        android:textColor="@color/black"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        />
+
+    <Button
+        android:id="@+id/category_page"
+        android:layout_width="279dp"
+        android:layout_height="59dp"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="#FFFED567"
+        android:text="나눔 글 보기"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/posting_page" />
+
+    <Button
+        android:id="@+id/my_post_page"
+        android:layout_width="279dp"
+        android:layout_height="59dp"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="#FFFED567"
+        android:text="내 나눔글 보기"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/category_page" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

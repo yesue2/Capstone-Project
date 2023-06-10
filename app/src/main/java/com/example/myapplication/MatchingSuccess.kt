@@ -1,27 +1,17 @@
 package com.example.myapplication
 
 import android.content.Intent
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.util.SparseBooleanArray
-import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 //import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.android.synthetic.main.activity_matching_success.*
-import kotlinx.android.synthetic.main.activity_register.*
-import kotlinx.android.synthetic.main.brand_name.*
-import org.w3c.dom.Text
 
 class MatchingSuccess : AppCompatActivity() {
 
@@ -98,7 +88,7 @@ class MatchingSuccess : AppCompatActivity() {
         val btn_back=findViewById<Button>(R.id.btn_back) //뒤로가기버튼
         btn_back.setOnClickListener({
 
-            val intent= Intent(this, MainPage::class.java) //다른 메뉴 찾아보기
+            val intent= Intent(this, CategoryPage::class.java) //다른 메뉴 찾아보기
 
             startActivity(intent)
         })

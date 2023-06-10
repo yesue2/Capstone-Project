@@ -22,9 +22,6 @@
             android:name=".MatchingSuccess"
             android:exported="false" />
         <activity
-            android:name=".MatchingFailed"
-            android:exported="false" />
-        <activity
             android:name=".Review"
             android:exported="false" />
         <activity
@@ -35,7 +32,7 @@
             android:windowSoftInputMode="adjustPan"
             android:exported="false" />
         <activity
-            android:name=".MainPage"
+            android:name=".CategoryPage"
             android:exported="false" />
         <activity
             android:name=".SelectImageActivity"
@@ -47,10 +44,19 @@
             android:name=".FindPasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".CategoryPage"
+            android:name=".MainPage"
             android:exported="false" />
         <activity
-            android:name=".matching.MatchingLoad"
+            android:name=".MyPost"
+            android:exported="false" />
+        <activity
+            android:name=".PostingPage"
+            android:exported="false" />
+        <activity
+            android:name=".PostListPage"
+            android:exported="false" />
+        <activity
+            android:name=".PostPage"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"

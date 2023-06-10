@@ -1,7 +1,6 @@
 package com.example.myapplication
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.RatingBar
 import android.widget.TextView
@@ -11,11 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import de.hdodenhof.circleimageview.CircleImageView
-import kotlinx.android.synthetic.main.activity_my_page.*
 import kotlinx.android.synthetic.main.activity_review.*
-import kotlinx.android.synthetic.main.activity_review.profile_image
-import kotlinx.android.synthetic.main.activity_review.rating_bar
-import kotlinx.android.synthetic.main.activity_review.username
 
 class Review : AppCompatActivity()  {
 
@@ -71,7 +66,7 @@ class Review : AppCompatActivity()  {
         }
 
         review_button.setOnClickListener{
-            val intent = Intent(this,MainPage::class.java)
+            val intent = Intent(this,CategoryPage::class.java)
 
             // 별점 평점 update
             // 리뷰가 3개 이상이면 절단 평균 계산하는 방식으로 수정함.
