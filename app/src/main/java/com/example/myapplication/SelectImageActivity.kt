@@ -1,10 +1,14 @@
 package com.example.myapplication
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.appcompat.app.AlertDialog
 import com.example.myapplication.databinding.ActivitySelectImageBinding
 import com.google.firebase.auth.FirebaseAuth
@@ -22,12 +26,12 @@ class SelectImageActivity : AppCompatActivity() {
     private lateinit var storage: FirebaseStorage
     private lateinit var storageReference: StorageReference
     private lateinit var selectImage: Uri
-    private lateinit var dialog: AlertDialog
     private lateinit var binding: ActivitySelectImageBinding
+
+    private val STORAGE_PERMISSION_CODE = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_select_image)
         binding = ActivitySelectImageBinding.inflate(layoutInflater)
         setContentView(binding.root)
         var check=false
@@ -49,10 +53,20 @@ class SelectImageActivity : AppCompatActivity() {
             else {
                 uploadImage()
                 //메인 페이지로 이동
-                val intent = Intent(this, CategoryPage::class.java)
+                val intent = Intent(this, MainPage::class.java)
                 startActivity(intent)
                 finish()
             }
+        }
+
+        // 외부 저장소 권한 요청
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                STORAGE_PERMISSION_CODE
+            )
         }
     }
 
@@ -70,8 +84,8 @@ class SelectImageActivity : AppCompatActivity() {
         databaseReference =
             FirebaseDatabase.getInstance().getReference().child("Users").child(auth.uid!!)
         storageReference = FirebaseStorage.getInstance().getReference().child("Image").child(auth.uid!!)
-        var hashmap: HashMap<String, String> = HashMap()
-        hashmap.put("userImage",selectImage.toString())
+        val hashmap: HashMap<String, String> = HashMap()
+        hashmap.put("userImage", selectImage.toString())
 
         databaseReference.child("userImage").setValue(selectImage.toString())
         storageReference.putFile(selectImage)

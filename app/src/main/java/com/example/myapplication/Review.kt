@@ -49,8 +49,8 @@ class Review : AppCompatActivity()  {
 
         mate.get().addOnSuccessListener{ dataSnapshot ->
             userName = dataSnapshot.child("userNickname").value.toString()
-            Glide.with(this).load("https://firebasestorage.googleapis.com/v0/b/banana-8d3ab.appspot.com/o/Image%2F" +
-                    "${mateID}?alt=media").circleCrop().into(profileImage)
+            Glide.with(this).load("https://firebasestorage.googleapis.com/v0/b/matching-72523.appspot.com/o/Image%2F${uid}?alt=media&token=30debee5-947f-4918-ba9c-3ee40e82f6e0")
+                .circleCrop().into(profileImage)
             reviewSum = dataSnapshot.child("reviewSum").value.toString().toFloat()
             reviewNum = dataSnapshot.child("reviewNum").value.toString().toInt()
             reviewMax = dataSnapshot.child("reviewMax").value.toString().toFloat()
@@ -66,7 +66,7 @@ class Review : AppCompatActivity()  {
         }
 
         review_button.setOnClickListener{
-            val intent = Intent(this,CategoryPage::class.java)
+            val intent = Intent(this,MainPage::class.java)
 
             // 별점 평점 update
             // 리뷰가 3개 이상이면 절단 평균 계산하는 방식으로 수정함.

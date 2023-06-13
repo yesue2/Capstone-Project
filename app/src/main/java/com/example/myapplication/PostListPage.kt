@@ -34,8 +34,7 @@ class PostListPage : AppCompatActivity() {
                 val post = adapter.getItem(position)
                 post.title?.let { post.date?.let { it1 ->
                     post.content?.let { it2 ->
-                        navigateToPostPage(it,
-                            it1, it2
+                        navigateToPostPage(it, it1, it2, post.uid
                         )
                     }
                 } }
@@ -70,11 +69,12 @@ class PostListPage : AppCompatActivity() {
             }
         })
     }
-    private fun navigateToPostPage(title: String, date: String, content: String) {
+    private fun navigateToPostPage(title: String, date: String, content: String, uid: String?) {
         val intent = Intent(this, PostPage::class.java)
         intent.putExtra("title", title)
         intent.putExtra("date", date)
         intent.putExtra("content", content)
+        intent.putExtra("uid", uid)
         startActivity(intent)
     }
 }

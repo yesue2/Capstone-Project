@@ -13,18 +13,23 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import androidx.recyclerview.widget.RecyclerView
 import android.graphics.Rect
+import android.util.Log
 import android.view.View
 
 class ChatActivity : AppCompatActivity() {
     private val adapter = CharAdapter()
-    lateinit var nickname: String
-    lateinit var chatNum: String
-    lateinit var myRef: DatabaseReference
+    private lateinit var nickname: String
+    private lateinit var chatNum: String
+    private lateinit var myRef: DatabaseReference
+    private lateinit var userUid: String
     private var isOpen = false // 키보드 올라왔는지 확인
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat)
+
+        userUid = intent.getStringExtra("uid") ?: ""
+
         var database = FirebaseDatabase.getInstance()
         var auth = FirebaseAuth.getInstance()
         val uid = auth.currentUser?.uid.toString()
@@ -46,23 +51,27 @@ class ChatActivity : AppCompatActivity() {
         //hash map에 매칭된 사용자들, (이름, uid) 넝어주기
         val postListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // Get Post object and use the values to update the UI
-                dataSnapshot.children.forEach {
-                    it.children.forEach {
-                        println(adapter.UsersIDMap)
-                        adapter.UsersIDMap.put(it.key!!, it.value!!)
-                        chat_recyclerView.adapter = adapter
+                dataSnapshot.children.forEach { userSnapshot ->
+                    userSnapshot.children.forEach { uidSnapshot ->
+                        val nickname = uidSnapshot.value.toString()
+                        val uid = uidSnapshot.key
+
+                        if (uid != null) {
+                            adapter.UsersIDMap[nickname] = uid
+                            chat_recyclerView.adapter = adapter
+                        }
                     }
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-
+                // 처리할 내용
             }
         }
 
-        var tempMap = HashMap<String, String>()
-        tempMap.put(nickname, uid)
+
+        val tempMap = HashMap<String, String>()
+        tempMap[nickname] = uid
         myRef = database.getReference("message").child(chatNum).child("UsersID")
         myRef.child(uid).setValue(tempMap)
         myRef.addValueEventListener(postListener)
@@ -79,10 +88,19 @@ class ChatActivity : AppCompatActivity() {
         //나가기 버튼
         chat_quit_button.setOnClickListener {
             database.getReference("message").child(chatNum).removeValue()
+
             val intent = Intent(this, FinishActivity::class.java)
-            intent.putExtra("userMap", adapter.UsersIDMap);
+            intent.putExtra("userUid", userUid)
+            intent.putExtra("userMap", adapter.UsersIDMap)
             startActivity(intent)
             finish()
+
+
+            adapter.UsersIDMap.forEach { (key, value) ->
+                Log.d("UsersIDMap", "Key: $key, Value: $value")
+            }
+
+            Log.d("UserUid", "User UID: $userUid")
         }
 
         //여기서 작성했던 채팅 목록들 가져옴

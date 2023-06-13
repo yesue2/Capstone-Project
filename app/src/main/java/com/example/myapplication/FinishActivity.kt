@@ -3,108 +3,64 @@ package com.example.myapplication
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.android.synthetic.main.activity_finish.*
 
 class FinishActivity : AppCompatActivity() {
 
-    // firebase
-    private lateinit var auth: FirebaseAuth
-    // mate recyclerview
     private lateinit var mateAdapter: MateAdapter
     private val mates = mutableListOf<MateData>()
-    lateinit var userMate : RecyclerView
-    lateinit var button : Button
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var button: Button
+    private lateinit var userUid: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_finish)
-        auth = FirebaseAuth.getInstance()
-        val uid = auth.currentUser?.uid.toString()
+
+        recyclerView = findViewById(R.id.user_mate)
         button = findViewById(R.id.not_review_button)
-        var mateList : MutableList<String> = mutableListOf()
-        val mateHash = intent.getSerializableExtra("userMap") as HashMap<*, *>?
-        if (mateHash != null) {
-            for(mate in mateHash.values){
-                if(mate.toString().equals(uid)){
-                    break
-                }
-                mateList.add(mate.toString())
-            }
-        }
-        var mateNum = mateList.size
+
+        userUid = intent.getStringExtra("userUid") ?: ""
 
         // mate adapter
         mateAdapter = MateAdapter(this)
-        user_mate.adapter = mateAdapter
-        var username : String = ""
-        var imageURL = ""
+        recyclerView.adapter = mateAdapter
 
-        for(i in 0 until mateNum) {
-            val mate =
-                FirebaseDatabase.getInstance().getReference("Users").child(mateList[i])
-            mate.get().addOnSuccessListener { dataSnapshot ->
-                username = dataSnapshot.child("userNickname").value.toString()
-                imageURL =
-                    "https://firebasestorage.googleapis.com/v0/b/banana-8d3ab.appspot.com/o/Image%2F" +
-                            "${mateList[i]}?alt=media"
-                mates.apply {
-                    add(MateData(mateList[i], username, imageURL))
-                    mateAdapter.listener = object : OnClickListener {
-                        override fun btnClick(
-                            holder: MateAdapter.ViewHolder?,
-                            view: View,
-                            position: Int
-                        ) {
-                            val intent = Intent(view.context, Review::class.java)
-                            intent.putExtra("mate_id", mateList[i])
-                            startActivity(intent)
-                        }
-                    }
-                    mateAdapter.mates = mates
-                    mateAdapter.notifyDataSetChanged()
-                }
-            }
-        }
-        /*mates.apply {
-            for (i in 0 until mateNum) {
-                val mate =
-                    FirebaseDatabase.getInstance().getReference("Users").child(mateList[i])
-                println("print ${mateList[i]}")
-                mate.get().addOnSuccessListener { dataSnapshot ->
-                    username = dataSnapshot.child("userNickname").value.toString()
-                    println("$username")
-                    imageURL = "https://firebasestorage.googleapis.com/v0/b/banana-8d3ab.appspot.com/o/Image%2F" +
-                    "${mateList[i]}.jpg?alt=media"
-                    println("뭐 $imageURL")
-                    add(MateData(mateList[i], username, imageURL))
-                    mateAdapter.listener = object : OnClickListener {
-                        override fun btnClick(
-                            holder: MateAdapter.ViewHolder?,
-                            view: View,
-                            position: Int
-                        ) {
-                            val intent = Intent(view.context, Review::class.java)
-                            intent.putExtra("mate_id", mateList[i])
-                            startActivity(intent)
-                        }
+        val mateRef = FirebaseDatabase.getInstance().getReference("Users").child(userUid)
+        mateRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val username = dataSnapshot.child("userNickname").value.toString()
+                val imageURL = "https://firebasestorage.googleapis.com/v0/b/matching-72523.appspot.com/o/Image%2F${userUid}?alt=media"
+                mates.add(MateData(userUid, username, imageURL))
+                mateAdapter.listener = object : OnClickListener {
+                    override fun btnClick(holder: MateAdapter.ViewHolder?, view: View, position: Int) {
+                        val intent = Intent(view.context, Review::class.java)
+                        intent.putExtra("mate_id", userUid)
+                        startActivity(intent)
                     }
                 }
+                mateAdapter.mates = mates
+                mateAdapter.notifyDataSetChanged()
             }
 
-            mateAdapter.mates = mates
-            mateAdapter.notifyDataSetChanged()
+            override fun onCancelled(databaseError: DatabaseError) {
+                // 처리할 내용
+            }
+        })
 
-
-        }*/
         button.setOnClickListener {
-            val intent = Intent(this, CategoryPage::class.java)
+            val intent = Intent(this, MainPage::class.java)
             startActivity(intent)
         }
     }
-
 }
+

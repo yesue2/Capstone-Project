@@ -55,7 +55,7 @@ class CharAdapter : RecyclerView.Adapter<CharAdapter.ViewHolder>(){
                 itemView.chat_text_background.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, R.color.F46E6E))
                 itemView.chat_nickname.text = item.nickname
                 //itemView.chat_image.setImageResource(R.drawable.icon)
-                Glide.with(context).load("https://firebasestorage.googleapis.com/v0/b/banana-8d3ab.appspot.com/o/Image%2F${UsersIDMap.get(item.nickname)}?alt=media&token=05d7ec83-54a0-48fe-9b0f-cb1c3c92a4ad").circleCrop().into(itemView.chat_image);
+                Glide.with(context).load("https://firebasestorage.googleapis.com/v0/b/matching-72523.appspot.com/o/Image%2F${UsersIDMap.get(item.nickname)}?alt=media&token=30debee5-947f-4918-ba9c-3ee40e82f6e0").circleCrop().into(itemView.chat_image);
                 itemView.chat_main_layout.gravity = 0
                 itemView.chat_msg.setTextColor(Color.WHITE)
             }
