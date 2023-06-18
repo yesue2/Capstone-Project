@@ -3,21 +3,21 @@ package com.example.myapplication
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
+import android.util.Log
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.EditText
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import kotlinx.android.synthetic.main.activity_posting.*
 import kotlinx.android.synthetic.main.activity_register.*
 import kotlinx.android.synthetic.main.brand_name.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class PostingPage : AppCompatActivity() {
 
@@ -26,13 +26,21 @@ class PostingPage : AppCompatActivity() {
     private lateinit var uid: String
 
     private lateinit var spinnerWriteType: Spinner
-    private lateinit var writeTitle: EditText
     private lateinit var writeContent: EditText
 
     private lateinit var writeKey: ArrayList<String>
     private lateinit var writeValue: ArrayList<String>
 
     private lateinit var adapter: ArrayAdapter<String>
+    private lateinit var storeList: ArrayList<Store>
+
+    private lateinit var postingAdapter: PostingAdapter
+
+    private lateinit var S_btn: Button
+
+    private lateinit var selectedCategory: String
+
+
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,32 +53,52 @@ class PostingPage : AppCompatActivity() {
         uid = user?.uid ?: ""
 
         spinnerWriteType = findViewById(R.id.spinner_write_type)
-        writeTitle = findViewById(R.id.title)
         writeContent = findViewById(R.id.content)
+
+        S_btn = findViewById(R.id.select_type)
+        S_btn.setOnClickListener {
+            val index = spinnerWriteType.selectedItemPosition
+            selectedCategory = writeKey[index]
+            fetchStoreList(selectedCategory)
+
+            Log.d("PostingPage", "Selected Category: $selectedCategory")
+        }
 
         writeKey = ArrayList()
         writeValue = ArrayList()
+        storeList = ArrayList()
+
+        val layoutManager = LinearLayoutManager(this)
+        recyclerView.layoutManager = layoutManager
+
+        postingAdapter = PostingAdapter(storeList)
+        recyclerView.adapter = postingAdapter
 
         getBoardType()
+
     }
 
     private fun getBoardType() {
-        mDatabase.child("foodType").addValueEventListener(object : ValueEventListener {
+        mDatabase.child("foodList").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val dataArray: ArrayList<Map<String, String>>? = dataSnapshot.value as? ArrayList<Map<String, String>>
 
                 writeKey.clear()
                 writeValue.clear()
 
+                val categorySet = HashSet<String>()
+
                 dataArray?.let {
                     for (item in it) {
                         val category = item["cate"]
                         category?.let {
-                            writeKey.add(category)
-                            writeValue.add(category)
+                            categorySet.add(category)
                         }
                     }
                 }
+
+                writeKey.addAll(categorySet)
+                writeValue.addAll(categorySet)
 
                 adapter = ArrayAdapter(this@PostingPage, android.R.layout.simple_spinner_item, writeValue)
                 adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line)
@@ -83,13 +111,36 @@ class PostingPage : AppCompatActivity() {
         })
     }
 
+    private fun fetchStoreList(category: String) {
+        mDatabase.child("foodList")
+            .orderByChild("cate")
+            .equalTo(category)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    storeList.clear()
+                    for (storeSnapshot in dataSnapshot.children) {
+                        val storeName = storeSnapshot.child("store_name").value as String?
+                        val minOrder = storeSnapshot.child("min_order").value as String?
+                        val timeTaken = storeSnapshot.child("time_taken").value as String?
+
+                        storeName?.let {
+                            val store = Store(storeName, minOrder, timeTaken)
+                            storeList.add(store)
+                        }
+                    }
+                    postingAdapter.notifyDataSetChanged()
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    // Handle the error
+                }
+            })
+    }
+
+
+
     @SuppressLint("MissingInflatedId")
     fun buttonBoardRegister(view: View) {
-        if (writeTitle.text.toString() == "") {
-            Toast.makeText(this, "제목을 입력해주세요", Toast.LENGTH_SHORT).show()
-            return
-        }
-
         if (writeContent.text.toString() == "") {
             Toast.makeText(this, "내용을 입력하세요", Toast.LENGTH_SHORT).show()
             return
@@ -114,7 +165,6 @@ class PostingPage : AppCompatActivity() {
         val orderToday = dateFormat2.format(time)
 
         val board = Board().apply {
-            title = writeTitle.text.toString()
             content = writeContent.text.toString()
             contentType = selectedCategory
             uid = this@PostingPage.uid
@@ -134,4 +184,3 @@ class PostingPage : AppCompatActivity() {
         super.onDestroy()
     }
 }
-

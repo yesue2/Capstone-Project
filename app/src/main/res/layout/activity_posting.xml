@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_posting.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@drawable/mainpage_background"
     android:padding="16dp"
     android:orientation="vertical"
@@ -19,43 +20,50 @@
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:layout_marginTop="180dp"
+            android:textStyle="bold"
             android:text="음식 종류" />
 
         <androidx.appcompat.widget.AppCompatSpinner
             android:id="@+id/spinner_write_type"
-            android:layout_width="match_parent"
+            android:layout_width="225dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="187dp"
             android:padding="16dp" />
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="제목"/>
-
-        <EditText
-            android:id="@+id/title"
-            android:padding="16dp"
-            android:background="#eeeeee"
+        <Button
+            android:id="@+id/select_type"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="주문을 원하는 가게 이름을 적어주세요."
-            />
+            android:backgroundTint="#FFFED567"
+            android:text="검색"
+            android:layout_marginTop="180dp"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
+
     </LinearLayout>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="759dp"
+        android:orientation="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:layout_marginTop="16dp"
+        android:layout_weight="1"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/select_type"/>
+
+
+
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/selected_item_tv"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:text="내용"/>
+        android:text="선택된 가게: "
+        android:textStyle="bold"
+        android:layout_marginTop="16dp"/>
 
     <EditText
         android:id="@+id/content"
