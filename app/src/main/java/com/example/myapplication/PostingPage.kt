@@ -40,7 +40,11 @@ class PostingPage : AppCompatActivity() {
 
     private lateinit var selectedCategory: String
 
+    private var selectedStoreName: String? = null
 
+    interface OnStoreClickListener {
+        fun onStoreClick(store: Store)
+    }
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,12 +75,20 @@ class PostingPage : AppCompatActivity() {
         val layoutManager = LinearLayoutManager(this)
         recyclerView.layoutManager = layoutManager
 
-        postingAdapter = PostingAdapter(storeList)
+        postingAdapter = PostingAdapter(storeList, object : PostingAdapter.OnStoreClickListener {
+            override fun onStoreClick(store: Store) {
+                selectedStoreName = store.storeName
+                selected_item_tv.text = "선택된 가게: ${store.storeName}"
+                postingAdapter.notifyDataSetChanged()
+            }
+        }, selectedStoreName)
+
+
         recyclerView.adapter = postingAdapter
 
         getBoardType()
-
     }
+
 
     private fun getBoardType() {
         mDatabase.child("foodList").addValueEventListener(object : ValueEventListener {
@@ -137,12 +149,15 @@ class PostingPage : AppCompatActivity() {
             })
     }
 
-
-
     @SuppressLint("MissingInflatedId")
     fun buttonBoardRegister(view: View) {
         if (writeContent.text.toString() == "") {
             Toast.makeText(this, "내용을 입력하세요", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (selectedStoreName.isNullOrEmpty()) {
+            Toast.makeText(this, "가게를 선택하세요", Toast.LENGTH_SHORT).show()
             return
         }
 
