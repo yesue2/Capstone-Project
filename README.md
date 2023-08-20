@@ -18,14 +18,12 @@
 
     
 ## 3. 프로그램 구조도
-<div>
-<h4>-시스템 구조도
+- 시스템 구조도
 
 ![KakaoTalk_20230713_000541096](https://github.com/yesue2/deliveryshare/assets/108323785/9f9b2e59-7edc-446c-be4a-109ddac63be6)
 
--시스템 흐름도
+- 시스템 흐름도
 ![KakaoTalk_20230713_000626219](https://github.com/yesue2/deliveryshare/assets/108323785/6bc86488-4ea1-425c-afdd-10e63ec6caa6)
-</div>
    
     
 ## 4. 어플 소개
